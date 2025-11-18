@@ -1,10 +1,9 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
-import UserInput from './components/UserInput'; // Універсальний ввід
+import UserInput from './components/UserInput';
 import InitialScreen from './components/Screens/InitialScreen';
-import ResultScreen from './components/Screens/ResultScreen';
-import LoadingScreen from './components/Screens/LoadingScreen';
+import ChatScreen from './components/Screens/ChatScreen'; // Новий універсальний екран для діалогу
 import styles from './styles/App.module.css';
 
 const mockPolyData = {
@@ -13,89 +12,115 @@ const mockPolyData = {
   details: 'next to the stairs',
 };
 
+// Згенеруємо унікальний ID для кожної відповіді Poly, щоб імітувати різні відповіді
+const generatePolyResponse = (query) => {
+    // Дуже проста логіка імітації контексту
+    if (query.toLowerCase().includes('114')) {
+        return {
+            text: `Got it! Room 114 is in **${mockPolyData.building}**, on the **${mockPolyData.floor}**, next to the stairs. Check the map below and follow the arrows to get there.`,
+            isMap: true, // Це повідомлення містить карту
+            data: mockPolyData
+        };
+    }
+    if (query.toLowerCase().includes('thanks')) {
+        return {
+            text: "You're welcome! Let me know if you need any other directions or information.",
+            isMap: false
+        };
+    }
+    return {
+        text: `Based on your request about "${query}", I'm looking up the latest information now. This is a generic AI response for demonstration.`,
+        isMap: false
+    };
+};
+
+
 const App = () => {
   const [currentScreen, setCurrentScreen] = useState('initial'); 
+  // chatHistory тепер зберігає всі запити та відповіді
   const [chatHistory, setChatHistory] = useState([]);
-  const [polyStatus, setPolyStatus] = useState(mockPolyData);
+  const [isLoading, setIsLoading] = useState(false); 
 
   const handleQuerySubmit = (query) => {
-    // 1. Додаємо запит користувача до історії
-    setChatHistory(prev => [...prev, { sender: 'user', text: query }]);
+    if (isLoading) return; // Запобігаємо подвійному відправленню
+
+    // 1. Додаємо запит користувача
+    const newHistory = [...chatHistory, { sender: 'user', text: query }];
+    setChatHistory(newHistory);
     
-    // 2. Перехід до екрану завантаження
-    setCurrentScreen('loading');
+    // 2. Включаємо loading, переходимо на ChatScreen
+    setIsLoading(true);
+    setCurrentScreen('chat'); 
   };
 
   useEffect(() => {
-    if (currentScreen === 'loading') {
+    if (isLoading) {
+      const lastQuery = chatHistory.findLast(msg => msg.sender === 'user')?.text || "";
+      
       const timer = setTimeout(() => {
         // 3. Імітація відповіді Poly
-        const polyResponse = `Got it! Room 114 is in ${polyStatus.building}, on the ${polyStatus.floor}, ${polyStatus.details}. Check the map below and follow the arrows to get there.`;
+        const response = generatePolyResponse(lastQuery);
         
         setChatHistory(prevHistory => [
           ...prevHistory,
-          { sender: 'poly', text: polyResponse, data: polyStatus }
+          { sender: 'poly', ...response }
         ]);
 
-        // 4. Перехід до екрану результату
-        setCurrentScreen('result');
-      }, 1500); // 1.5 секунди затримки
+        // 4. Вимикаємо loading
+        setIsLoading(false);
+        // Екран залишається 'chat'
+      }, 1500); 
 
       return () => clearTimeout(timer);
     }
-  }, [currentScreen, polyStatus]);
+  }, [isLoading, chatHistory]);
 
-  const handleAcknowledge = (message) => {
-    // Обробка спеціальної кнопки "Thanks!"
-    setChatHistory(prevHistory => [...prevHistory, { sender: 'user', text: message }]);
-    
-    // Можна повернути на початковий екран або залишитися на цьому
-    setCurrentScreen('initial');
-    setChatHistory([]); // Очищення історії
+  const handleAcknowledge = () => {
+    // Обробка "Thanks!" - просто відправляємо його як повідомлення
+    handleQuerySubmit("Thanks!");
   };
+  
+  const handleClearChat = () => {
+    // Функція очищення чату
+    setChatHistory([]);
+    setIsLoading(false);
+    setCurrentScreen('initial');
+  }
 
   const renderScreen = () => {
-    // На InitialScreen ми не відображаємо історію чату, а лише пропозиції
-    if (currentScreen === 'initial') {
+    // InitialScreen відображається лише при порожній історії
+    if (currentScreen === 'initial' && chatHistory.length === 0) {
       return <InitialScreen onQuerySubmit={handleQuerySubmit} />;
     }
     
-    // На Loading та Result екранах відображаємо історію
-    const lastQuery = chatHistory.findLast(msg => msg.sender === 'user')?.text || "Where is room 114?";
-    const lastPolyMessage = chatHistory.findLast(msg => msg.sender === 'poly');
-
-    if (currentScreen === 'loading') {
-      return <LoadingScreen userQuery={lastQuery} />;
-    }
-    if (currentScreen === 'result') {
-      return (
-        <ResultScreen 
-          userQuery={lastQuery}
-          polyResponseData={lastPolyMessage?.data || polyStatus} 
-          onAcknowledge={handleAcknowledge}
+    // ChatScreen відображає всю історію чату, незалежно від стану loading
+    return (
+        <ChatScreen 
+            history={chatHistory} 
+            isLoading={isLoading} 
+            onAcknowledge={handleAcknowledge}
         />
-      );
-    }
-    return null;
+    );
   };
 
-  const isInputDisabled = currentScreen === 'loading';
+  const isInputDisabled = isLoading;
 
   return (
     <div className={styles.appContainer}>
-      <Header isQueryActive={currentScreen !== 'initial'} />
+      {/* Передаємо функцію очищення чату в Header */}
+      <Header 
+          isQueryActive={chatHistory.length > 0} 
+          onClearChat={handleClearChat}
+      />
       <main className={styles.mainContent}>
         {renderScreen()}
       </main>
       
-      {/* УНІВЕРСАЛЬНЕ ПОЛЕ ВВОДУ: 
-        Завжди внизу, завжди викликає handleQuerySubmit, 
-        але вимикається під час currentScreen === 'loading'
-      */}
+      {/* УНІВЕРСАЛЬНЕ ПОЛЕ ВВОДУ: завжди внизу та активне, якщо не loading */}
       <div className={styles.universalInputWrapper}>
           <UserInput 
               onSubmit={handleQuerySubmit} 
-              placeholder="Ask anything..." 
+              placeholder={isLoading ? "Poly is thinking..." : "Ask anything..."} 
               isDisabled={isInputDisabled}
           />
       </div>

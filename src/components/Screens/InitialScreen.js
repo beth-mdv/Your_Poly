@@ -1,4 +1,3 @@
-// src/components/Screens/InitialScreen.js
 import React from 'react';
 import SuggestedQueries from '../SuggestedQueries';
 import styles from '../../styles/App.module.css';
@@ -17,9 +16,9 @@ const InitialScreen = ({ onQuerySubmit }) => {
         <h2 className={styles.greeting}>What can I help you with?</h2>
         <SuggestedQueries queries={suggested} onSelect={onQuerySubmit} />
       </div>
-      {/* Input тепер рендериться глобально в App.js */}
     </div>
   );
 };
 
 export default InitialScreen;
+
