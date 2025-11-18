@@ -1,17 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+// src/index.js (для React 18)
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+import React from 'react';
+import { createRoot } from 'react-dom/client'; 
+import App from './App'; 
+
+// ! Видаліть цей рядок, якщо у вас немає файлу index.css
+// import './styles/index.css';
+import './styles/index.css' 
+
+// Якщо потрібно додати глобальні стилі, переконайтеся, що файл існує, наприклад:
+// import './styles/global.css'; 
+
+
+const container = document.getElementById('root'); 
+const root = createRoot(container); 
+
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

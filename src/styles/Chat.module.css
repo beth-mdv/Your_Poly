@@ -1,0 +1,95 @@
+/* styles/Chat.module.css */
+
+/* Suggested Queries */
+.suggestedQueries {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    max-width: 80%;
+}
+
+.queryButton {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ccc;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.queryButton:hover {
+    background-color: #f0f0f0;
+}
+
+/* User Input */
+.inputContainer {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px 0;
+    margin-top: auto;
+    /* Притискає до низу на InitialScreen */
+}
+
+.inputForm {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.inputField {
+    flex-grow: 1;
+    padding: 15px 20px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #333;
+}
+
+.inputField::placeholder {
+    color: #aaa;
+}
+
+.submitButton {
+    background: none;
+    border: none;
+    padding: 0 15px 0 0;
+    cursor: pointer;
+    color: #555;
+}
+
+/* Chat Bubbles */
+.chatBubble {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    font-size: 15px;
+}
+
+.userBubble {
+    align-self: flex-end;
+    background-color: #e0f7fa;
+    /* Світло-блакитний */
+    color: #333;
+    border-bottom-right-radius: 2px;
+    margin-left: auto;
+}
+
+.polyBubble {
+    align-self: flex-start;
+    background-color: #f8f8f8;
+    /* Світло-сірий */
+    color: #333;
+    border-bottom-left-radius: 2px;
+    margin-right: auto;
+}
