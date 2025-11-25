@@ -1,132 +1,170 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
-import UserInput from './components/UserInput';
+import UserInput from './components/UserInput'; // Універсальний ввід
 import InitialScreen from './components/Screens/InitialScreen';
-import ChatScreen from './components/Screens/ChatScreen'; // Новий універсальний екран для діалогу
+import ResultScreen from './components/Screens/ResultScreen';
+import LoadingScreen from './components/Screens/LoadingScreen';
 import styles from './styles/App.module.css';
 
+// ==============================================================================
+//  ВСТАВКА АДРЕСИ 
+// ==============================================================================
+
+const API_URL_FULL = "https://hexahydrated-lorenzo-noncapitalistic.ngrok-free.dev/predict"; 
+// ==============================================================================
+
+
 const mockPolyData = {
-  building: 'Building 1',
-  floor: 'first floor',
-  details: 'next to the stairs',
+  building: 'Building 1',
+  floor: 'first floor',
+  details: 'next to the stairs',
 };
-
-// Згенеруємо унікальний ID для кожної відповіді Poly, щоб імітувати різні відповіді
-const generatePolyResponse = (query) => {
-    // Дуже проста логіка імітації контексту
-    if (query.toLowerCase().includes('114')) {
-        return {
-            text: `Got it! Room 114 is in **${mockPolyData.building}**, on the **${mockPolyData.floor}**, next to the stairs. Check the map below and follow the arrows to get there.`,
-            isMap: true, // Це повідомлення містить карту
-            data: mockPolyData
-        };
-    }
-    if (query.toLowerCase().includes('thanks')) {
-        return {
-            text: "You're welcome! Let me know if you need any other directions or information.",
-            isMap: false
-        };
-    }
-    return {
-        text: `Based on your request about "${query}", I'm looking up the latest information now. This is a generic AI response for demonstration.`,
-        isMap: false
-    };
-};
-
 
 const App = () => {
-  const [currentScreen, setCurrentScreen] = useState('initial'); 
-  // chatHistory тепер зберігає всі запити та відповіді
-  const [chatHistory, setChatHistory] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [currentScreen, setCurrentScreen] = useState('initial'); 
+  const [chatHistory, setChatHistory] = useState([]);
+  const [polyStatus, setPolyStatus] = useState(mockPolyData);
 
-  const handleQuerySubmit = (query) => {
-    if (isLoading) return; // Запобігаємо подвійному відправленню
+  // Нова змінна для керування станом очікування запиту
+  const [pendingQuery, setPendingQuery] = useState(null); 
 
-    // 1. Додаємо запит користувача
-    const newHistory = [...chatHistory, { sender: 'user', text: query }];
-    setChatHistory(newHistory);
+  const handleQuerySubmit = (query) => {
+    // 1. Додаємо запит користувача до історії
+    setChatHistory(prev => [...prev, { sender: 'user', text: query }]);
     
-    // 2. Включаємо loading, переходимо на ChatScreen
-    setIsLoading(true);
-    setCurrentScreen('chat'); 
-  };
+    // 2. Зберігаємо запит для використання в useEffect
+    setPendingQuery(query);
+    
+    // 3. Перехід до екрану завантаження
+    setCurrentScreen('loading');
+  };
 
-  useEffect(() => {
-    if (isLoading) {
-      const lastQuery = chatHistory.findLast(msg => msg.sender === 'user')?.text || "";
-      
-      const timer = setTimeout(() => {
-        // 3. Імітація відповіді Poly
-        const response = generatePolyResponse(lastQuery);
-        
-        setChatHistory(prevHistory => [
-          ...prevHistory,
-          { sender: 'poly', ...response }
-        ]);
+  useEffect(() => {
+    // Виконуємо запит лише якщо є запит на обробку
+    if (currentScreen === 'loading' && pendingQuery) {
+        
+        // ==============================================================================
+        //  API-ЗАПИТ 
+        // ==============================================================================
+        const sendQueryToPoly = async () => {
+            const lastQuery = pendingQuery;
 
-        // 4. Вимикаємо loading
-        setIsLoading(false);
-        // Екран залишається 'chat'
-      }, 1500); 
+            try {
+                // Використовуємо повний URL з /predict
+                const response = await fetch(API_URL_FULL, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: lastQuery }),
+                });
 
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, chatHistory]);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-  const handleAcknowledge = () => {
-    // Обробка "Thanks!" - просто відправляємо його як повідомлення
-    handleQuerySubmit("Thanks!");
-  };
-  
-  const handleClearChat = () => {
-    // Функція очищення чату
-    setChatHistory([]);
-    setIsLoading(false);
-    setCurrentScreen('initial');
-  }
+                const data = await response.json();
+                
+                // 3. Додаємо реальну відповідь Poly до історії
+                setChatHistory(prevHistory => [
+                    ...prevHistory,
+                    { 
+                        sender: 'poly', 
+                        text: data.response, 
+                        // data.data містить об'єкт кімнати, якщо він був знайдений
+                        data: data.data || null 
+                    }
+                ]);
 
-  const renderScreen = () => {
-    // InitialScreen відображається лише при порожній історії
-    if (currentScreen === 'initial' && chatHistory.length === 0) {
-      return <InitialScreen onQuerySubmit={handleQuerySubmit} />;
+                // 4. Оновлюємо статус (якщо є дані про кімнату)
+                if (data.data) {
+                    setPolyStatus(data.data);
+                }
+
+                // 5. Перехід до екрану результату
+                setCurrentScreen('result');
+
+            } catch (error) {
+                console.error("Error fetching from Poly API:", error);
+                
+                // Обробка помилки
+                setChatHistory(prevHistory => [
+                    ...prevHistory,
+                    { 
+                        sender: 'poly', 
+                        text: "Вибачте, сталася помилка з'єднання. Перевірте Colab-сервер.", 
+                        data: null 
+                    }
+                ]);
+                setCurrentScreen('result'); 
+            } finally {
+                // 6. Очищаємо запит в очікуванні
+                setPendingQuery(null);
+            }
+        };
+
+        sendQueryToPoly();
+        // ==============================================================================
     }
     
-    // ChatScreen відображає всю історію чату, незалежно від стану loading
-    return (
-        <ChatScreen 
-            history={chatHistory} 
-            isLoading={isLoading} 
-            onAcknowledge={handleAcknowledge}
-        />
-    );
-  };
+  }, [currentScreen, pendingQuery]); // useEffect запускається лише при зміні стану або наявності запиту
 
-  const isInputDisabled = isLoading;
+  const handleAcknowledge = (message) => {
+    // Обробка спеціальної кнопки "Thanks!"
+    setChatHistory(prevHistory => [...prevHistory, { sender: 'user', text: message }]);
+    
+    setCurrentScreen('initial');
+    setChatHistory([]); // Очищення історії
+  };
 
-  return (
-    <div className={styles.appContainer}>
-      {/* Передаємо функцію очищення чату в Header */}
-      <Header 
-          isQueryActive={chatHistory.length > 0} 
-          onClearChat={handleClearChat}
-      />
-      <main className={styles.mainContent}>
-        {renderScreen()}
-      </main>
-      
-      {/* УНІВЕРСАЛЬНЕ ПОЛЕ ВВОДУ: завжди внизу та активне, якщо не loading */}
-      <div className={styles.universalInputWrapper}>
-          <UserInput 
-              onSubmit={handleQuerySubmit} 
-              placeholder={isLoading ? "Poly is thinking..." : "Ask anything..."} 
-              isDisabled={isInputDisabled}
-          />
-      </div>
+  const renderScreen = () => {
+    // На InitialScreen ми не відображаємо історію чату, а лише пропозиції
+    if (currentScreen === 'initial') {
+      return <InitialScreen onQuerySubmit={handleQuerySubmit} />;
+    }
+    
+    // На Loading та Result екранах відображаємо історію
+    const lastQuery = chatHistory.findLast(msg => msg.sender === 'user')?.text || "Where is the destination?";
+    const lastPolyMessage = chatHistory.findLast(msg => msg.sender === 'poly');
 
-    </div>
-  );
+    if (currentScreen === 'loading') {
+      return <LoadingScreen userQuery={lastQuery} />;
+    }
+    if (currentScreen === 'result') {
+      return (
+        <ResultScreen 
+          userQuery={lastQuery}
+          // Передаємо дані та текст відповіді
+          polyResponseData={lastPolyMessage?.data || polyStatus} 
+          polyResponseMessage={lastPolyMessage?.text || "No response received."}
+          onAcknowledge={handleAcknowledge}
+        />
+      );
+    }
+    return null;
+  };
+
+  const isInputDisabled = currentScreen === 'loading';
+
+  return (
+    <div className={styles.appContainer}>
+      <Header isQueryActive={currentScreen !== 'initial'} />
+      <main className={styles.mainContent}>
+        {renderScreen()}
+      </main>
+      
+      {/* УНІВЕРСАЛЬНЕ ПОЛЕ ВВОДУ */}
+      <div className={styles.universalInputWrapper}>
+          <UserInput 
+              onSubmit={handleQuerySubmit} 
+              placeholder="Ask anything..." 
+              isDisabled={isInputDisabled}
+          />
+      </div>
+
+    </div>
+  );
 };
 
 export default App;
