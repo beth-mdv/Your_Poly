@@ -1,39 +1,7 @@
-/* styles/Chat.module.css */
-
-/* Suggested Queries */
-.suggestedQueries {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 40px;
-    max-width: 80%;
-}
-
-.queryButton {
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 1px solid #ccc;
-    padding: 10px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
-    white-space: nowrap;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    color: #333;
-}
-
-.queryButton:hover {
-    background-color: #f0f0f0;
-}
-
-/* User Input */
+/* User Input Styles (Input Component) */
 .inputContainer {
-    width: 100%;
-    max-width: 500px;
-    padding: 10px 0;
-    margin-top: auto;
-    /* Притискає до низу на InitialScreen */
+    width: 80%;
+    /* max-width: none; цей рядок можна залишити або видалити, оскільки width: 100% головний */
 }
 
 .inputForm {
@@ -41,55 +9,47 @@
     align-items: center;
     background-color: white;
     border-radius: 30px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    /* М'яка тінь, як на фото */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    padding: 10px 5px 10px 20px;
+    width: 100%;
 }
 
 .inputField {
     flex-grow: 1;
-    padding: 15px 20px;
     border: none;
-    outline: none;
+    background: transparent;
+    padding: 0;
     font-size: 16px;
-    color: #333;
+    outline: none;
 }
 
-.inputField::placeholder {
-    color: #aaa;
+.inputField:disabled {
+    color: #999;
 }
 
 .submitButton {
-    background: none;
+    /* Стиль для іконки Mic/Square */
+    background-color: transparent;
+    color: #333;
     border: none;
-    padding: 0 15px 0 0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    color: #555;
+    transition: background-color 0.2s;
+    box-shadow: none;
 }
 
-/* Chat Bubbles */
-.chatBubble {
-    max-width: 80%;
-    padding: 10px 15px;
-    border-radius: 18px;
-    margin-bottom: 10px;
-    line-height: 1.4;
-    font-size: 15px;
+.submitButton:hover:not(:disabled) {
+    background-color: #f0f0f0;
 }
 
-.userBubble {
-    align-self: flex-end;
-    background-color: #e0f7fa;
-    /* Світло-блакитний */
-    color: #333;
-    border-bottom-right-radius: 2px;
-    margin-left: auto;
-}
-
-.polyBubble {
-    align-self: flex-start;
-    background-color: #f8f8f8;
-    /* Світло-сірий */
-    color: #333;
-    border-bottom-left-radius: 2px;
-    margin-right: auto;
+.submitButton:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    background-color: transparent;
 }
