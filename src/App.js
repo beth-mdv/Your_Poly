@@ -11,8 +11,8 @@ import { buildGraph, aStar, splitPathByFloor } from './utils/pathfinder';
 import MapCanvas from './utils/MapCanvas';
 
 // IMAGES
-import floor1Img from './assets/1 поверх.png';
-import floor2Img from './assets/2 поверх.png';
+import floor1Img from './assets/floor1.png';
+import floor2Img from './assets/floor2.png';
 
 const maps = {
   1: floor1Img,
@@ -27,36 +27,35 @@ const suggested = [
     "Where is the restroom?"
 ];
 
-// --- КОМПОНЕНТ ПОВІДОМЛЕННЯ (Оновлений) ---
-// Тепер приймає функцію onShowMap
+// --- КОМПОНЕНТ ПОВІДОМЛЕННЯ ---
 const ChatMessage = ({ msg, onShowMap }) => {
-    // Перевіряємо, чи є в цьому повідомленні дані для карти
     const hasMapData = msg.isMap && (msg.data?.nav_code || msg.data?.targetId);
 
     return (
         <div className={`${styles.message} ${msg.sender === 'user' ? styles.userMsg : styles.botMsg}`}>
             <div dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
             
-            {/* Кнопка повторного відкриття карти */}
+            {/* КНОПКА ВІДКРИТТЯ КАРТИ */}
             {hasMapData && (
                 <button 
                     onClick={() => onShowMap(msg.data.nav_code || msg.data.targetId)}
                     style={{
-                        marginTop: '10px',
-                        padding: '6px 12px',
-                        fontSize: '13px',
-                        backgroundColor: '#e0f2fe',
-                        color: '#0284c7',
-                        border: '1px solid #bae6fd',
-                        borderRadius: '6px',
+                        marginTop: '12px',
+                        padding: '8px 16px',
+                        fontSize: '14px',
+                        backgroundColor: '#eff6ff', 
+                        color: '#2563eb',           
+                        border: '1px solid #bfdbfe',
+                        borderRadius: '8px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '5px',
-                        fontWeight: '600'
+                        gap: '6px',
+                        fontWeight: '600',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                     }}
                 >
-                    🗺️ Show Map
+                    <span>🗺️</span> Show Map
                 </button>
             )}
         </div>
@@ -68,13 +67,15 @@ const App = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isInputDisabled, setIsInputDisabled] = useState(false);
     
-    // МАРШРУТ
+    // Стан для відображення карти
     const [pathSegments, setPathSegments] = useState(null); 
     const [activeSegmentIndex, setActiveSegmentIndex] = useState(0);
 
+    // Стан для збереження цілі (поки користувач не скаже "Так" або натисне кнопку)
+    const [pendingTarget, setPendingTarget] = useState(null);
+
     const chatEndRef = useRef(null);
 
-    // Ініціалізація графа
     const graphData = useMemo(() => {
         try { return buildGraph(buildingData); } 
         catch (e) { console.error(e); return null; }
@@ -88,10 +89,10 @@ const App = () => {
         setChatHistory([]);
         setPathSegments(null);
         setActiveSegmentIndex(0);
+        setPendingTarget(null);
     };
 
-    // --- ФУНКЦІЯ РОЗРАХУНКУ МАРШРУТУ (Винесена окремо) ---
-    // Тепер ми можемо викликати її звідки завгодно
+    // --- ФУНКЦІЯ РОЗРАХУНКУ МАРШРУТУ ---
     const calculateAndShowRoute = (targetCode) => {
         if (!targetCode || !graphData) return;
         
@@ -109,14 +110,12 @@ const App = () => {
                 }));
                 
                 setPathSegments(segmentsWithCoords);
-                setActiveSegmentIndex(0); // Скидаємо на початок
+                setActiveSegmentIndex(0);
             } else {
-                console.warn("Path not found");
-                alert("Sorry, I couldn't calculate the path.");
+                alert("Sorry, could not calculate route.");
             }
         } else {
-            console.error("Invalid start or target node");
-            alert(`Target "${targetCode}" not found on the map.`);
+            alert(`Target "${targetCode}" not found.`);
         }
     };
 
@@ -125,10 +124,35 @@ const App = () => {
 
         const userMessage = { sender: 'user', text: queryText };
         setChatHistory((prev) => [...prev, userMessage]);
-        
+
         setIsLoading(true);
         setIsInputDisabled(true);
-        setPathSegments(null);
+
+        // Перевірка на "ТАК" / "YES"
+        const lowerText = queryText.trim().toLowerCase();
+        const isYes = ['yes', 'так', 'ok', 'sure', 'ага', 'давай'].some(word => lowerText.includes(word));
+
+        if (isYes && pendingTarget) {
+            setTimeout(() => {
+                const mapMsg = { 
+                    sender: 'bot', 
+                    text: "Here is your route! 👇", 
+                    data: { nav_code: pendingTarget }, // Додаємо дані, щоб з'явилася кнопка
+                    isMap: true
+                };
+                setChatHistory(prev => [...prev, mapMsg]);
+                
+                // Автоматично відкриваємо карту
+                calculateAndShowRoute(pendingTarget);
+                
+                setPendingTarget(null);
+                setIsLoading(false);
+                setIsInputDisabled(false);
+            }, 600);
+            return;
+        }
+
+        setPathSegments(null); 
 
         try {
             const response = await fetch(`${API_BASE_URL}/predict`, {
@@ -142,18 +166,20 @@ const App = () => {
             
             const targetCode = data.data?.nav_code || data.data?.targetId;
 
+            if (targetCode) {
+                setPendingTarget(targetCode);
+            } else {
+                setPendingTarget(null);
+            }
+
+            // Це повідомлення БЕЗ кнопки (поки що)
             const botMessage = { 
                 sender: 'bot', 
-                text: data.response,
-                isMap: !!targetCode, // Помічаємо, що це повідомлення з картою
-                data: data.data
+                text: data.response, 
+                data: null, 
+                isMap: false 
             };
             setChatHistory((prev) => [...prev, botMessage]);
-
-            // Автоматично показуємо карту, якщо є ціль
-            if (targetCode) {
-                calculateAndShowRoute(targetCode);
-            }
 
         } catch (error) {
             console.error(error);
@@ -164,140 +190,57 @@ const App = () => {
         }
     };
 
-    // --- ЛОГІКА ПЕРЕМИКАННЯ ПОВЕРХІВ ---
+    // --- НАВІГАЦІЯ ---
     const handleNextFloor = () => {
-        if (pathSegments && activeSegmentIndex < pathSegments.length - 1) {
-            setActiveSegmentIndex(prev => prev + 1);
-        }
+        if (pathSegments && activeSegmentIndex < pathSegments.length - 1) setActiveSegmentIndex(prev => prev + 1);
     };
-
     const handlePrevFloor = () => {
-        if (pathSegments && activeSegmentIndex > 0) {
-            setActiveSegmentIndex(prev => prev - 1);
-        }
+        if (pathSegments && activeSegmentIndex > 0) setActiveSegmentIndex(prev => prev - 1);
     };
 
     const renderScreen = () => {
-        // --- СЦЕНАРІЙ: КАРТА (АКТИВНА) ---
+        // КАРТА
         if (pathSegments && pathSegments.length > 0) {
             const currentSegment = pathSegments[activeSegmentIndex];
             const totalFloors = pathSegments.length;
 
             return (
                 <div className={styles.mapContainer} style={{ paddingBottom: '20px', position: 'relative' }}>
-                    <h3 style={{textAlign: 'center', color: '#333', marginBottom: '10px'}}>
-                        Route Calculated 🗺️
-                    </h3>
-
-                    <div style={{ 
-                        border: '1px solid #ddd', 
-                        borderRadius: '16px', 
-                        overflow: 'hidden', 
-                        background: '#fff',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                        position: 'relative'
-                    }}>
-                        {/* Верхня панель */}
-                        <div style={{ 
-                            background: '#eff6ff', 
-                            padding: '10px 15px', 
-                            display: 'flex', 
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            borderBottom: '1px solid #dbeafe'
-                        }}>
-                            <span style={{ fontWeight: 'bold', color: '#1e40af' }}>
-                                Floor {currentSegment.floor}
-                            </span>
-                            {totalFloors > 1 && (
-                                <span style={{ fontSize: '12px', color: '#64748b' }}>
-                                    Step {activeSegmentIndex + 1} of {totalFloors}
-                                </span>
-                            )}
+                    <h3 style={{textAlign: 'center', color: '#333', marginBottom: '10px'}}>Route Calculated 🗺️</h3>
+                    <div style={{ border: '1px solid #ddd', borderRadius: '16px', overflow: 'hidden', background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', position: 'relative' }}>
+                        <div style={{ background: '#eff6ff', padding: '10px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #dbeafe' }}>
+                            <span style={{ fontWeight: 'bold', color: '#1e40af' }}>Floor {currentSegment.floor}</span>
+                            {totalFloors > 1 && <span style={{ fontSize: '12px', color: '#64748b' }}>Step {activeSegmentIndex + 1} of {totalFloors}</span>}
                         </div>
-
-                        {/* Карта */}
                         <div style={{ position: 'relative', width: '100%', height: '400px' }}>
-                            <MapCanvas 
-                                key={activeSegmentIndex} 
-                                floor={currentSegment.floor}
-                                mapImageSrc={maps[currentSegment.floor]} 
-                                pathNodes={currentSegment.nodes}
-                                isActiveAnimation={true}
-                            />
+                            <MapCanvas key={activeSegmentIndex} floor={currentSegment.floor} mapImageSrc={maps[currentSegment.floor]} pathNodes={currentSegment.nodes} isActiveAnimation={true} />
                         </div>
-
-                        {/* Кнопки навігації */}
                         {totalFloors > 1 && (
                             <>
-                                {activeSegmentIndex < totalFloors - 1 && (
-                                    <button 
-                                        onClick={handleNextFloor}
-                                        style={{
-                                            position: 'absolute', top: '60px', right: '10px',
-                                            background: '#2563eb', color: 'white', border: 'none',
-                                            borderRadius: '8px', padding: '8px 12px', cursor: 'pointer',
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.2)', fontWeight: 'bold', fontSize: '14px', zIndex: 10
-                                        }}
-                                    >
-                                        Next Floor ➡
-                                    </button>
-                                )}
-                                {activeSegmentIndex > 0 && (
-                                    <button 
-                                        onClick={handlePrevFloor}
-                                        style={{
-                                            position: 'absolute', top: '60px', left: '10px',
-                                            background: 'white', color: '#2563eb', border: '1px solid #2563eb',
-                                            borderRadius: '8px', padding: '8px 12px', cursor: 'pointer',
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)', fontWeight: 'bold', fontSize: '14px', zIndex: 10
-                                        }}
-                                    >
-                                        ⬅ Back
-                                    </button>
-                                )}
+                                {activeSegmentIndex < totalFloors - 1 && <button onClick={handleNextFloor} style={{ position: 'absolute', top: '60px', right: '10px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', padding: '8px 12px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', fontWeight: 'bold', fontSize: '14px', zIndex: 10 }}>Next Floor ➡</button>}
+                                {activeSegmentIndex > 0 && <button onClick={handlePrevFloor} style={{ position: 'absolute', top: '60px', left: '10px', background: 'white', color: '#2563eb', border: '1px solid #2563eb', borderRadius: '8px', padding: '8px 12px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', fontWeight: 'bold', fontSize: '14px', zIndex: 10 }}>⬅ Back</button>}
                             </>
                         )}
                     </div>
-
-                    <button 
-                        onClick={() => setPathSegments(null)}
-                        style={{
-                            display: 'block', margin: '20px auto', padding: '12px 24px',
-                            backgroundColor: '#ef4444', color: 'white', border: 'none',
-                            borderRadius: '30px', cursor: 'pointer', fontWeight: 'bold',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-                        }}
-                    >
-                        Close Map
-                    </button>
+                    <button onClick={() => setPathSegments(null)} style={{ display: 'block', margin: '20px auto', padding: '12px 24px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '30px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>Close Map</button>
                 </div>
             );
         }
 
-        // --- СЦЕНАРІЙ: ЧАТ ---
+        // ЧАТ
         if (chatHistory.length > 0) {
             return (
                 <div className={styles.chatList}>
                     {chatHistory.map((msg, index) => (
-                        // 👇 Передаємо функцію відкриття карти в повідомлення
-                        <ChatMessage 
-                            key={index} 
-                            msg={msg} 
-                            onShowMap={calculateAndShowRoute} 
-                        />
+                        <ChatMessage key={index} msg={msg} onShowMap={calculateAndShowRoute} />
                     ))}
-                    {isLoading && (
-                        <div className={`${styles.message} ${styles.botMsg} ${styles.loadingMessage}`}>
-                            <span style={{fontSize: '14px', color: '#666'}}>Poly is thinking...</span>
-                        </div>
-                    )}
+                    {isLoading && <div className={`${styles.message} ${styles.botMsg} ${styles.loadingMessage}`}><span style={{fontSize: '14px', color: '#666'}}>Poly is thinking...</span></div>}
                     <div ref={chatEndRef} />
                 </div>
             );
         }
 
-        // --- СЦЕНАРІЙ: ПРИВІТАННЯ ---
+        // ПРИВІТАННЯ
         return (
             <div className={styles.welcomeScreen}>
                 <div className={styles.heartIcon}>🤍</div> 
@@ -320,8 +263,9 @@ const App = () => {
             <div className={styles.universalInputWrapper}>
                 <UserInput 
                     onSubmit={handleQuerySubmit} 
+                    // 👇 ВИПРАВЛЕНО ТУТ
                     placeholder={isLoading ? "Poly is thinking..." : "Ask about a room..."} 
-                    isDisabled={isInputDisabled}
+                    isDisabled={isInputDisabled} 
                 />
             </div>
         </div>
