@@ -82,6 +82,7 @@
     box-shadow: none;
     z-index: 5;
     box-sizing: border-box;
+    background: linear-gradient(135deg, #f8fcff, #ddfbff, #fff0f5);
     /* Гарантуємо, що padding не збільшує загальну ширину */
 }
 

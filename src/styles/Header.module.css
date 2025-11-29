@@ -9,6 +9,7 @@
     left: 0;
     right: 0;
     z-index: 10;
+    background: linear-gradient(135deg, #f8fcff, #ddfbff, #fff0f5);
 }
 
 .titleContainer {
