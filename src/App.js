@@ -234,7 +234,7 @@ const App = () => {
                     {chatHistory.map((msg, index) => (
                         <ChatMessage key={index} msg={msg} onShowMap={calculateAndShowRoute} />
                     ))}
-                    {isLoading && <div className={`${styles.message} ${styles.botMsg} ${styles.loadingMessage}`}><span style={{fontSize: '14px', color: '#666'}}>Poly is thinking...</span></div>}
+                    {isLoading && <div className={`${styles.message} ${styles.botMsg} ${styles.loadingMessage}`}><span style={{fontSize: '14px', color: '#666'}}>One moment, I’m looking for your classroom...</span></div>}
                     <div ref={chatEndRef} />
                 </div>
             );
