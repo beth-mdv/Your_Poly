@@ -1,0 +1,390 @@
+[
+  {
+    "number": "101",
+    "building": "1",
+    "floor": "1",
+    "code": 101,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 101" ]
+  },
+  {
+    "number": "102",
+    "building": "1",
+    "floor": "1",
+    "code": 102,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 102" ]
+  },
+  {
+    "number": "103",
+    "building": "1",
+    "floor": "1",
+    "code": 103,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "educational and methodical department" ]
+  },
+  {
+    "number": "104",
+    "building": "1",
+    "floor": "1",
+    "code": 104,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 104" ]
+  },
+  {
+    "number": "105",
+    "building": "1",
+    "floor": "1",
+    "code": 105,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 105" ]
+  },
+  {
+    "number": "106",
+    "building": "1",
+    "floor": "1",
+    "code": 106,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "electric panel" ]
+  },
+  {
+    "number": "107",
+    "building": "1",
+    "floor": "1",
+    "code": 107,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "auxiliary room" ]
+  },
+  {
+    "number": "108",
+    "building": "1",
+    "floor": "1",
+    "code": 108,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "carpenter's workshop" ]
+  },
+  {
+    "number": "109",
+    "building": "1",
+    "floor": "1",
+    "code": 8,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "auxiliary room" ]
+  },
+  {
+    "number": "112",
+    "building": "1",
+    "floor": "1",
+    "code": 112,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 112" ]
+  },
+  {
+    "number": "113",
+    "building": "1",
+    "floor": "1",
+    "code": 113,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 113" ]
+  },
+  {
+    "number": "116",
+    "building": "1",
+    "floor": "1",
+    "code": 116,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 116" ]
+  },
+  {
+    "number": "24",
+    "building": "1",
+    "floor": "1",
+    "code": 24,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "cold room" ]
+  },
+  {
+    "number": "22",
+    "building": "1",
+    "floor": "1",
+    "code": 22,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "stairs to the 2nd floor of the left wing" ]
+  },
+  {
+    "number": "2",
+    "building": "1",
+    "floor": "1",
+    "code": 2,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "stairs to the shelter" ]
+  },
+  {
+    "number": "10",
+    "building": "1",
+    "floor": "1",
+    "code": 10,
+    "wing_en": "center",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "professional orientation center, computer class", "point of operational printing" ]
+  },
+  {
+    "number": "9",
+    "building": "1",
+    "floor": "1",
+    "code": 9,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "wardrobe" ]
+  },
+  {
+    "number": "114",
+    "building": "1",
+    "floor": "1",
+    "code": 114,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "premises of the department" ]
+  },
+  {
+    "number": "115",
+    "building": "1",
+    "floor": "1",
+    "code": 115,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "premises of the department" ]
+  },
+  {
+    "number": "117",
+    "building": "1",
+    "floor": "1",
+    "code": 117,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 117" ]
+  },
+
+  {
+    "number": "23",
+    "building": "1",
+    "floor": "1",
+    "code": 23,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "stairs to the 2nd floor of the right wing" ]
+  },
+  {
+    "number": "201",
+    "building": "1",
+    "floor": "2",
+    "code": 201,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 201" ]
+  },
+  {
+    "number": "202",
+    "building": "1",
+    "floor": "2",
+    "code": 202,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 202" ]
+  },
+  {
+    "number": "203",
+    "building": "1",
+    "floor": "2",
+    "code": 203,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 203" ]
+  },
+  {
+    "number": "204",
+    "building": "1",
+    "floor": "2",
+    "code": 204,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 204" ]
+  },
+  {
+    "number": "205",
+    "building": "1",
+    "floor": "2",
+    "code": 205,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 205" ]
+  },
+  {
+    "number": "206",
+    "building": "1",
+    "floor": "2",
+    "code": 206,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 206" ]
+  },
+  {
+    "number": "207",
+    "building": "1",
+    "floor": "2",
+    "code": 207,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 207" ]
+  },
+  {
+    "number": "208",
+    "building": "1",
+    "floor": "2",
+    "code": 208,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 208" ]
+  },
+  {
+    "number": "209",
+    "building": "1",
+    "floor": "2",
+    "code": 209,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 209" ]
+  },
+  {
+    "number": "210",
+    "building": "1",
+    "floor": "2",
+    "code": 210,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 210" ]
+  },
+  {
+    "number": "211",
+    "building": "1",
+    "floor": "2",
+    "code": 211,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 211" ]
+  },
+  {
+    "number": "212",
+    "building": "1",
+    "floor": "2",
+    "code": 212,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 212" ]
+  },
+  {
+    "number": "213",
+    "building": "1",
+    "floor": "2",
+    "code": 213,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 213" ]
+  },
+  {
+    "number": "214",
+    "building": "1",
+    "floor": "2",
+    "code": 214,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 214" ]
+  },
+  {
+    "number": "17",
+    "building": "1",
+    "floor": "2",
+    "code": 13,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "men's toilet" ]
+  },
+  {
+    "number": "15",
+    "building": "1",
+    "floor": "2",
+    "code": 15,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "women's toilet" ]
+  },
+  {
+    "number": "216",
+    "building": "1",
+    "floor": "2",
+    "code": 216,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 216" ]
+  },
+  {
+    "number": "217",
+    "building": "1",
+    "floor": "2",
+    "code": 217,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 217" ]
+  },
+  {
+    "number": "218",
+    "building": "1",
+    "floor": "2",
+    "code": 218,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "Auditorium 218" ]
+  },
+  {
+    "number": "18",
+    "building": "1",
+    "floor": "2",
+    "code": 18,
+    "wing_en": "right",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "stairs from the 1st floor to the 2nd floor" ]
+  },
+  {
+    "number": "17",
+    "building": "1",
+    "floor": "2",
+    "code": 17,
+    "wing_en": "the left",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "stairs from the 1st floor to the 2nd floor" ]
+  },
+  {
+    "number": "9",
+    "building": "1",
+    "floor": "2",
+    "code": 9,
+    "wing_en": "center",
+    "street_en": "24 Starosolskyh St",
+    "names_en": [ "assembly hall" ]
+  }
+]
