@@ -1,4 +1,3 @@
-// src/utils/MapCanvas.js
 import React, { useRef, useEffect, useState } from 'react';
 
 const REF_SIZE = { 
@@ -9,13 +8,12 @@ const REF_SIZE = {
 const STYLE = {
     lineWidth: 5,
     outlineWidth: 8,
-    color: '#2563eb', // Синій
-    startColor: '#16a34a', // Зелений
-    endColor: '#dc2626',   // Червоний
-    durationMs: 2000 // Час анімації (2 секунди)
+    color: '#2563eb',
+    startColor: '#16a34a',
+    endColor: '#dc2626',
+    durationMs: 2000
 };
 
-// Функція для плавності (Ease In Out)
 const easeIO = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
@@ -23,7 +21,6 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
     const [imageObj, setImageObj] = useState(null);
     const [parentSize, setParentSize] = useState({ w: 0, h: 0 });
 
-    // 1. Завантаження
     useEffect(() => {
         const img = new Image();
         img.src = mapImageSrc;
@@ -31,7 +28,6 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
         img.onerror = () => console.error("MapCanvas: Image load failed", mapImageSrc);
     }, [mapImageSrc]);
 
-    // 2. Розмір
     useEffect(() => {
         const updateSize = () => {
             if (canvasRef.current && canvasRef.current.parentElement) {
@@ -44,7 +40,6 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
         return () => window.removeEventListener('resize', updateSize);
     }, []);
 
-    // 3. Малювання + Анімація
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext('2d');
@@ -53,20 +48,17 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
         canvas.width = parentSize.w;
         canvas.height = parentSize.h;
 
-        // --- Масштабування ---
         const refW = REF_SIZE[floor]?.w || 2000;
         const refH = REF_SIZE[floor]?.h || 1500;
         const scale = Math.min(canvas.width / refW, canvas.height / refH);
         const offsetX = (canvas.width - refW * scale) / 2;
         const offsetY = (canvas.height - refH * scale) / 2;
 
-        // Перетворення точок
         const points = (pathNodes || []).map(node => ({
             x: node.x * scale + offsetX,
             y: node.y * scale + offsetY
         }));
 
-        // Розрахунок довжини шляху
         let totalLen = 0;
         const lengths = [0];
         for (let i = 0; i < points.length - 1; i++) {
@@ -75,23 +67,18 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
             lengths.push(totalLen);
         }
 
-        // --- Функція кадру ---
         const drawFrame = (currentLen) => {
-            // Очищення і фон
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#f8fafc';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Карта
             ctx.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height, offsetX, offsetY, refW * scale, refH * scale);
 
             if (points.length < 2) return;
 
-            // Налаштування ліній
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            // Малювання шляху до currentLen
             const drawPath = (width, color) => {
                 ctx.lineWidth = width;
                 ctx.strokeStyle = color;
@@ -99,16 +86,14 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
                 ctx.moveTo(points[0].x, points[0].y);
 
                 for (let i = 0; i < points.length - 1; i++) {
-                    const segLen = lengths[i+1] - lengths[i]; // Довжина цього сегмента
-                    const startLen = lengths[i];                // Початок цього сегмента
+                    const segLen = lengths[i+1] - lengths[i];
+                    const startLen = lengths[i];
                     
-                    if (currentLen <= startLen) break; // Ще не дійшли
+                    if (currentLen <= startLen) break;
 
                     if (currentLen >= lengths[i+1]) {
-                        // Малюємо повний сегмент
                         ctx.lineTo(points[i+1].x, points[i+1].y);
                     } else {
-                        // Малюємо частину сегмента
                         const progress = (currentLen - startLen) / segLen;
                         const newX = points[i].x + (points[i+1].x - points[i].x) * progress;
                         const newY = points[i].y + (points[i+1].y - points[i].y) * progress;
@@ -119,15 +104,11 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
                 ctx.stroke();
             };
 
-            // 1. Біла підкладка (контур)
             drawPath(8, 'white');
-            // 2. Основна лінія
             drawPath(5, STYLE.color);
 
-            // Точка старту
             drawDot(ctx, points[0], STYLE.startColor);
 
-            // Точка фінішу (тільки якщо дійшли до кінця)
             if (currentLen >= totalLen) {
                 drawDot(ctx, points[points.length-1], STYLE.endColor);
             }
@@ -143,7 +124,6 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
             ctx.stroke();
         };
 
-        // --- Анімація ---
         let reqId;
         let startTime;
 
@@ -158,7 +138,7 @@ const MapCanvas = ({ floor, mapImageSrc, pathNodes, isActiveAnimation }) => {
             if (progress < 1) {
                 reqId = requestAnimationFrame(animate);
             } else {
-                drawFrame(totalLen); // Фінал
+                drawFrame(totalLen);
             }
         };
 
